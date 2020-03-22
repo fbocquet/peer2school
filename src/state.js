@@ -23,11 +23,13 @@ export let state = {
   pointOuts: [],
   teacherStreams: [],
   stream: null,
+  videoStream: null,
   whiteboard: [],
 }
 
 getUserMedia(stream => {
   state.stream = stream
+  state.videoStream = new MediaStream(stream.getVideoTracks())
 })
 
 export let webrtc = new WebRTC({ room })
@@ -39,7 +41,7 @@ webrtc.on('status', info => {
       state.teacherStreams.push(webrtc.io.id)
     }
 
-    webrtc.send('teacherStream', {      
+    webrtc.send('teacherStream', {
       teacherStream: webrtc.io.id
     })
   }
@@ -59,8 +61,8 @@ webrtc.on('whiteboard', ({ action }) => {
   this.whiteboard.push(action)
 })
 
-//pointsOut.state -> true = point out is activated 
-//                   false = point out is deactivates 
+//pointsOut.state -> true = point out is activated
+//                   false = point out is deactivates
 webrtc.on('point_out', pointsOut => {
   if(pointsOut.state){
     state.pointOuts.push(pointsOut.sender)
@@ -156,7 +158,7 @@ export function sendPointOutInfo(pointsOutInfo) {
     state: pointsOutInfo,
   })
 
-  
+
   // local
   if(pointsOutInfo){
     state.pointOuts.push(webrtc.io.id)
